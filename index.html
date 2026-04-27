@@ -1479,35 +1479,49 @@
                      throw new Error(pollData.msg || 'API Error');
                   }
                   
+                  // 根据常见的中转API格式，实际数据可能包裹在 data 中
+                  const targetData = pollData.data || pollData;
+                  
                   // 尝试提取进度或状态
-                  if (pollData.progress) {
-                    msg(`正在绘制... 进度: ${pollData.progress}`);
+                  const progress = targetData.progress || pollData.progress;
+                  const status = targetData.status || pollData.status;
+                  
+                  if (progress && status !== 'SUCCESS') {
+                    msg(`正在绘制... 进度: ${progress}`);
                   }
                   
-                  // 寻找最终图片URL
-                  let imgUrl = pollData.imageUrl || pollData.url;
-                  if (!imgUrl && pollData.data) {
-                    if (typeof pollData.data === 'string' && pollData.data.startsWith('http')) imgUrl = pollData.data;
-                    else if (pollData.data.url) imgUrl = pollData.data.url;
-                    else if (Array.isArray(pollData.data) && pollData.data[0]) imgUrl = pollData.data[0].url || (pollData.data[0].b64_json ? `data:image/png;base64,${pollData.data[0].b64_json}` : null);
+                  // 寻找最终图片URL (多兼容处理)
+                  let imgUrl = targetData.imageUrl || targetData.url || targetData.image_url;
+                  if (!imgUrl && typeof targetData === 'string' && targetData.startsWith('http')) {
+                    imgUrl = targetData;
+                  } else if (!imgUrl && Array.isArray(targetData) && targetData[0]) {
+                    imgUrl = targetData[0].url || targetData[0].imageUrl || (targetData[0].b64_json ? `data:image/png;base64,${targetData[0].b64_json}` : null);
                   }
-                  if (!imgUrl && typeof pollData.result === 'string' && pollData.result.startsWith('http')) imgUrl = pollData.result;
+                  if (!imgUrl && typeof pollData.result === 'string' && pollData.result.startsWith('http')) {
+                    imgUrl = pollData.result;
+                  }
                   
                   // 检查任务是否失败
-                  if (pollData.status === 'FAILED' || pollData.status === 'FAILURE') {
+                  if (status === 'FAILED' || status === 'FAILURE') {
                     clearInterval(pollTimer);
                     addHistoryItem(taskId, 'failed', [], prompt);
-                    msg(`绘制失败: ${pollData.failReason || pollData.msg || '未知错误'}`, true);
+                    msg(`绘制失败: ${targetData.failReason || targetData.msg || pollData.msg || '未知错误'}`, true);
                     setLoading(false);
                     return;
                   }
 
-                  if (imgUrl) {
-                    clearInterval(pollTimer);
-                    msg('创作完成');
-                    addHistoryItem(taskId, 'completed', [imgUrl], prompt);
-                    addGalleryGroup([imgUrl], prompt);
-                    setLoading(false);
+                  if (status === 'SUCCESS' || imgUrl) {
+                    if (imgUrl) {
+                      clearInterval(pollTimer);
+                      msg('创作完成');
+                      addHistoryItem(taskId, 'completed', [imgUrl], prompt);
+                      addGalleryGroup([imgUrl], prompt);
+                      setLoading(false);
+                    } else {
+                      // 状态成功但找不到图片，打印出来方便调试
+                      msg(`任务已成功，但解析图片失败: ${JSON.stringify(targetData).substring(0, 150)}`, true);
+                      console.log("成功但无图片:", pollData);
+                    }
                   } else if (pollCount >= maxPolls) {
                     clearInterval(pollTimer);
                     addHistoryItem(taskId, 'failed', [], prompt);
