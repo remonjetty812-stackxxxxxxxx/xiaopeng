@@ -1327,6 +1327,7 @@
           }
 
           let urls = [];
+          let rawResponseDebug = [];
           
           const contentType = res.headers.get('content-type') || '';
           if (contentType.includes('text/event-stream') || contentType.includes('stream') || contentType.includes('application/x-ndjson')) {
@@ -1355,6 +1356,7 @@
                 
                 try {
                   const dataObj = JSON.parse(dataStr);
+                  rawResponseDebug.push(dataObj);
                   
                   // 判断是否为错误返回
                   if (dataObj.code && dataObj.code < 0) {
@@ -1366,10 +1368,20 @@
                     msg(`正在绘制... 进度: ${dataObj.progress || '处理中'}`);
                   }
                   
-                  // 寻找图片URL
-                  const imgUrl = dataObj.imageUrl || dataObj.url || (dataObj.data && dataObj.data[0] && dataObj.data[0].url) || (typeof dataObj.result === 'string' && dataObj.result.startsWith('http') ? dataObj.result : null);
+                  // 寻找图片URL (增强兼容性)
+                  let imgUrl = dataObj.imageUrl || dataObj.url;
+                  if (!imgUrl && dataObj.data) {
+                    if (typeof dataObj.data === 'string' && dataObj.data.startsWith('http')) {
+                      imgUrl = dataObj.data;
+                    } else if (dataObj.data.url) {
+                      imgUrl = dataObj.data.url;
+                    } else if (Array.isArray(dataObj.data) && dataObj.data[0]) {
+                      imgUrl = dataObj.data[0].url || (dataObj.data[0].b64_json ? `data:image/png;base64,${dataObj.data[0].b64_json}` : null);
+                    }
+                  }
+                  if (!imgUrl && typeof dataObj.result === 'string' && dataObj.result.startsWith('http')) imgUrl = dataObj.result;
                   
-                  if (imgUrl && (dataObj.status === 'SUCCESS' || !dataObj.status)) {
+                  if (imgUrl) {
                     if (!urls.includes(imgUrl)) urls.push(imgUrl);
                   }
                 } catch (e) {
@@ -1387,8 +1399,17 @@
                if (dataStr !== '[DONE]') {
                  try {
                     const dataObj = JSON.parse(dataStr);
+                    rawResponseDebug.push(dataObj);
                     if (dataObj.code && dataObj.code < 0) throw new Error(dataObj.msg || 'API Error');
-                    const imgUrl = dataObj.imageUrl || dataObj.url || (dataObj.data && dataObj.data[0] && dataObj.data[0].url) || (typeof dataObj.result === 'string' && dataObj.result.startsWith('http') ? dataObj.result : null);
+                    
+                    let imgUrl = dataObj.imageUrl || dataObj.url;
+                    if (!imgUrl && dataObj.data) {
+                      if (typeof dataObj.data === 'string' && dataObj.data.startsWith('http')) imgUrl = dataObj.data;
+                      else if (dataObj.data.url) imgUrl = dataObj.data.url;
+                      else if (Array.isArray(dataObj.data) && dataObj.data[0]) imgUrl = dataObj.data[0].url || (dataObj.data[0].b64_json ? `data:image/png;base64,${dataObj.data[0].b64_json}` : null);
+                    }
+                    if (!imgUrl && typeof dataObj.result === 'string' && dataObj.result.startsWith('http')) imgUrl = dataObj.result;
+
                     if (imgUrl) {
                       if (!urls.includes(imgUrl)) urls.push(imgUrl);
                     }
@@ -1400,17 +1421,22 @@
           } else {
             // 处理同步 JSON 响应
             const data = await res.json();
+            rawResponseDebug.push(data);
             
             // 尝试从多种常见结构中提取图片
             if (data.imageUrl) urls.push(data.imageUrl);
             else if (data.url) urls.push(data.url);
             else if (data.result && typeof data.result === 'string' && data.result.startsWith('http')) urls.push(data.result);
-            else if (data.data && Array.isArray(data.data)) {
-              urls = data.data.map(item => {
-                if (item.url) return item.url;
-                if (item.b64_json) return `data:image/png;base64,${item.b64_json}`;
-                return null;
-              }).filter(u => u);
+            else if (data.data) {
+              if (typeof data.data === 'string' && data.data.startsWith('http')) {
+                urls.push(data.data);
+              } else if (Array.isArray(data.data)) {
+                urls = data.data.map(item => {
+                  if (item.url) return item.url;
+                  if (item.b64_json) return `data:image/png;base64,${item.b64_json}`;
+                  return null;
+                }).filter(u => u);
+              }
             } else if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
                urls.push(data.choices[0].message.content); // markdown 图片链接或纯URL
             }
@@ -1422,7 +1448,16 @@
             addGalleryGroup(urls, prompt);
           } else {
             addHistoryItem(taskId, 'failed', [], prompt);
-            msg('未返回有效图片', true);
+            const debugStr = rawResponseDebug.length > 0 ? JSON.stringify(rawResponseDebug[rawResponseDebug.length - 1]) : '空';
+            console.log("API 未返回图片，完整响应:", rawResponseDebug);
+            
+            // 尝试判断是否是返回了任务ID需要轮询
+            const lastData = rawResponseDebug[rawResponseDebug.length - 1];
+            if (lastData && lastData.code === 1 && lastData.data && typeof lastData.data === 'string' && !lastData.data.startsWith('http')) {
+               msg(`提交成功，任务ID: ${lastData.data} (暂未实现轮询获取结果)`, true);
+            } else {
+               msg('未返回有效图片: ' + debugStr.substring(0, 100) + '...', true);
+            }
           }
 
         } catch (err) {
