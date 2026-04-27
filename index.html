@@ -1038,13 +1038,15 @@
       function updateSizeAvailability() {
         const isGptImage = ui.model.value === 'gpt-image-2';
         if (isGptImage) {
-          ui.size.value = '1K';
+          // GPT Image 2 模型其实不需要强制锁定为1K，我们可以让用户自由选择，或者保持启用状态
+          // ui.size.value = '1K';
         } else {
           ui.size.value = localStorage.getItem(STORE_SIZE) || '4K';
         }
-        ui.size.disabled = isGptImage;
-        ui.size.style.opacity = isGptImage ? '0.4' : '';
-        ui.size.style.cursor = isGptImage ? 'not-allowed' : '';
+        // 解除对 sizeSelect 的禁用
+        ui.size.disabled = false;
+        ui.size.style.opacity = '';
+        ui.size.style.cursor = '';
       }
       updateSizeAvailability();
 
@@ -1291,6 +1293,7 @@
             model: model,
             prompt: prompt,
             aspectRatio: ui.ratio.value, // 1:1, 16:9, 3:2 etc.
+            size: ui.size.value, // 1K, 2K, 4K
             webHook: "-1" // 强制接口立即返回任务id用于轮询
           };
 
