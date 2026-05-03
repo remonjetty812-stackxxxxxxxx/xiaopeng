@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金厨娘多味鸡爪 - 电商详情页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+        }
+
+        /* 顶部导航 */
+        .header {
+            background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            color: #fff;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 30px;
+            font-size: 14px;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 40px;
+        }
+
+        /* 产品图片区 */
+        .product-images {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .main-image {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #ff4d4d 0%, #ff1a1a 100%);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(255,77,77,0.3);
+        }
+
+        .image-thumbs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .thumb-item {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .thumb-item:hover,
+        .thumb-item.active {
+            border-color: #d4a017;
+            transform: translateY(-2px);
+        }
+
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 产品信息区 */
+        .product-info {
+            padding-top: 20px;
+        }
+
+        .brand-tag {
+            display: inline-block;
+            background: rgba(212, 160, 23, 0.1);
+            color: #d4a017;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .product-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        .product-subtitle {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* 价格区域 */
+        .price-section {
+            background: linear-gradient(135deg, #fff5f5 0%, #fff0f0 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .current-price {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ff4d4d;
+        }
+
+        .original-price {
+            font-size: 16px;
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .discount-tag {
+            background: #ff4d4d;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .sales-info {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 规格选择 */
+        .spec-section {
+            margin-bottom: 25px;
+        }
+
+        .spec-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .spec-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .spec-item {
+            padding: 12px 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .spec-item:hover {
+            border-color: #d4a017;
+        }
+
+        .spec-item.active {
+            border-color: #d4a017;
+            background: rgba(212, 160, 23, 0.1);
+            color: #d4a017;
+        }
+
+        /* 数量选择 */
+        .quantity-section {
+            margin-bottom: 30px;
+        }
+
+        .quantity-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .qty-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: #f5f5f5;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .qty-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .qty-input {
+            width: 60px;
+            height: 40px;
+            border: none;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        /* 购买按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn-primary {
+            flex: 2;
+            height: 50px;
+            background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 160, 23, 0.4);
+        }
+
+        .btn-secondary {
+            flex: 1;
+            height: 50px;
+            background: #fff;
+            border: 2px solid #d4a017;
+            color: #d4a017;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(212, 160, 23, 0.1);
+        }
+
+        /* 服务保障 */
+        .service-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 25px;
+            background: #fafafa;
+            border-radius: 12px;
+        }
+
+        .service-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .service-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .service-text {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 产品详情标签页 */
+        .tabs-section {
+            margin-top: 40px;
+            border-top: 1px solid #eee;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab-item {
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-item.active {
+            color: #d4a017;
+            border-bottom-color: #d4a017;
+        }
+
+        .tab-content {
+            padding: 30px;
+        }
+
+        /* 商品详情 */
+        .detail-content {
+            line-height: 1.8;
+        }
+
+        .detail-section {
+            margin-bottom: 30px;
+        }
+
+        .detail-section h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 4px solid #d4a017;
+        }
+
+        .detail-section p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .feature-text {
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* 评价区 */
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .review-count {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .review-item {
+            display: flex;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .review-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .review-content {
+            flex: 1;
+        }
+
+        .review-user {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .review-text {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .review-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        /* 底部 */
+        .footer {
+            background: #333;
+            color: #fff;
+            padding: 40px;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+
+        .footer-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #999;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #d4a017;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #444;
+            color: #666;
+            font-size: 12px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                padding: 20px;
+                gap: 20px;
+            }
+
+            .product-title {
+                font-size: 22px;
+            }
+
+            .current-price {
+                font-size: 28px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .service-section {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="logo">
+            <span>🍗</span>
+            <span>金厨娘</span>
+        </div>
+        <nav class="nav-links">
+            <a href="#">首页</a>
+            <a href="#">全部商品</a>
+            <a href="#">品牌故事</a>
+            <a href="#">联系我们</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 产品图片 -->
+            <div class="product-images">
+                <div class="main-image">
+                    <span class="badge">🔥 爆款热销</span>
+                    <img src="https://neeko-copilot.bytedance.net/api/text_to_image?prompt=delicious%20braised%20chicken%20feet%20snack%2C%20golden%20color%2C%20appetizing%2C%20professional%20food%20photography%2C%20white%20background%2C%20high%20quality%2C%208K&image_size=square" alt="多味鸡爪">
+                </div>
+                <div class="image-thumbs">
+                    <div class="thumb-item active"><img src="https://neeko-copilot.bytedance.net/api/text_to_image?prompt=delicious%20braised%20chicken%20feet%20snack%2C%20golden%20color%2C%20appetizing%2C%20professional%20food%20photography%2C%20white%20background%2C%20high%20quality%2C%208K&image_size=square" alt=""></div>
+                    <div class="thumb-item"><img src="https://neeko-copilot.bytedance.net/api/text_to_image?prompt=chicken%20feet%20snack%20packaging%2C%20golden%20design%2C%20product%20packaging%20design%2C%20professional%2C%20high%20quality&image_size=square" alt=""></div>
+                    <div class="thumb-item"><img src="https://neeko-copilot.bytedance.net/api/text_to_image?prompt=multiple%20braised%20chicken%20feet%20on%20plate%2C%20appetizing%2C%20food%20photography%2C%20warm%20lighting&image_size=square" alt=""></div>
+                    <div class="thumb-item"><img src="https://neeko-copilot.bytedance.net/api/text_to_image?prompt=snack%20product%20display%2C%20chicken%20feet%2C%20elegant%20presentation%2C%20commercial%20photography&image_size=square" alt=""></div>
+                </div>
+            </div>
+
+            <!-- 产品信息 -->
+            <div class="product-info">
+                <span class="brand-tag">金厨娘品牌</span>
+                <h1 class="product-title">多味鸡爪 卤味熟食小吃</h1>
+                <p class="product-subtitle">精选优质鸡爪，传统卤制工艺，鲜香可口，回味无穷</p>
+
+                <!-- 价格 -->
+                <div class="price-section">
+                    <div class="price-row">
+                        <span class="current-price">¥19.9</span>
+                        <span class="original-price">¥35.00</span>
+                        <span class="discount-tag">5.7折</span>
+                    </div>
+                    <div class="sales-info">月销 10000+ | 好评率 98%</div>
+                </div>
+
+                <!-- 规格选择 -->
+                <div class="spec-section">
+                    <div class="spec-title">规格选择</div>
+                    <div class="spec-options">
+                        <div class="spec-item active">32g*5袋</div>
+                        <div class="spec-item">32g*10袋</div>
+                        <div class="spec-item">32g*20袋</div>
+                        <div class="spec-item">32g*50袋</div>
+                    </div>
+                </div>
+
+                <!-- 数量选择 -->
+                <div class="quantity-section">
+                    <div class="spec-title">购买数量</div>
+                    <div class="quantity-row">
+                        <div class="quantity-control">
+                            <button class="qty-btn" onclick="decreaseQty()">-</button>
+                            <input type="number" class="qty-input" id="quantity" value="1" min="1">
+                            <button class="qty-btn" onclick="increaseQty()">+</button>
+                        </div>
+                        <span style="color:#999;">库存 9999+ 件</span>
+                    </div>
+                </div>
+
+                <!-- 购买按钮 -->
+                <div class="action-buttons">
+                    <button class="btn-primary">
+                        <span>🛒</span>
+                        <span>加入购物车</span>
+                    </button>
+                    <button class="btn-secondary">
+                        <span>❤️</span>
+                        <span>收藏</span>
+                    </button>
+                </div>
+
+                <!-- 服务保障 -->
+                <div class="service-section">
+                    <div class="service-item">
+                        <span class="service-icon">🚚</span>
+                        <span class="service-text">包邮到家</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-icon">✅</span>
+                        <span class="service-text">正品保障</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-icon">🔄</span>
+                        <span class="service-text">7天无理由退换</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 标签页 -->
+        <div class="tabs-section">
+            <div class="tabs">
+                <div class="tab-item active" onclick="showTab('detail')">商品详情</div>
+                <div class="tab-item" onclick="showTab('reviews')">用户评价</div>
+                <div class="tab-item" onclick="showTab('specs')">规格参数</div>
+            </div>
+
+            <div class="tab-content" id="detail">
+                <div class="detail-content">
+                    <div class="detail-section">
+                        <h3>产品介绍</h3>
+                        <p>金厨娘多味鸡爪，精选新鲜鸡爪，采用传统卤制工艺，配以多种天然香辛料，经过数十道工序精心制作而成。</p>
+                        <p>鸡爪肉质饱满，口感Q弹，卤香浓郁，回味无穷。独立小包装，方便携带，是您休闲时刻的美味选择。</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>产品特点</h3>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <span class="feature-icon">🥩</span>
+                                <span class="feature-text">精选优质鸡爪</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">🌿</span>
+                                <span class="feature-text">天然香辛料卤制</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✨</span>
+                                <span class="feature-text">口感Q弹劲道</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">👜</span>
+                                <span class="feature-text">独立小包装</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>食用方法</h3>
+                        <p>开袋即食，冷藏后口感更佳。</p>
+                        <p>温馨提示：如有胀袋、漏气等情况请勿食用。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="reviews" style="display:none;">
+                <div class="review-header">
+                    <h3>用户评价</h3>
+                    <span class="review-count">共 2368 条评价</span>
+                </div>
+                <div class="review-item">
+                    <div class="review-avatar">张</div>
+                    <div class="review-content">
+                        <div class="review-user">张***明</div>
+                        <div class="review-text">非常好吃！鸡爪很入味，Q弹有嚼劲，已经回购好几次了，家人都很喜欢吃。</div>
+                        <div class="review-time">2024-01-15</div>
+                    </div>
+                </div>
+                <div class="review-item">
+                    <div class="review-avatar">李</div>
+                    <div class="review-content">
+                        <div class="review-user">李***华</div>
+                        <div class="review-text">包装精美，日期新鲜，味道很不错，比超市买的好吃多了，性价比很高！</div>
+                        <div class="review-time">2024-01-14</div>
+                    </div>
+                </div>
+                <div class="review-item">
+                    <div class="review-avatar">王</div>
+                    <div class="review-content">
+                        <div class="review-user">王***芳</div>
+                        <div class="review-text">物流很快，第二天就到了。鸡爪很新鲜，卤味很香，追剧必备零食！</div>
+                        <div class="review-time">2024-01-13</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="specs" style="display:none;">
+                <div class="detail-content">
+                    <div class="detail-section">
+                        <h3>规格参数</h3>
+                        <table style="width:100%; border-collapse:collapse;">
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:12px; color:#999;">品牌</td>
+                                <td style="padding:12px;">金厨娘</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:12px; color:#999;">产品名称</td>
+                                <td style="padding:12px;">多味鸡爪</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:12px; color:#999;">规格</td>
+                                <td style="padding:12px;">32g/袋</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:12px; color:#999;">保质期</td>
+                                <td style="padding:12px;">12个月</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:12px; color:#999;">储存条件</td>
+                                <td style="padding:12px;">阴凉干燥处，避免阳光直射</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:12px; color:#999;">产地</td>
+                                <td style="padding:12px;">中国大陆</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <div class="footer-title">关于我们</div>
+                <ul class="footer-links">
+                    <li><a href="#">品牌故事</a></li>
+                    <li><a href="#">联系我们</a></li>
+                    <li><a href="#">加入我们</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="footer-title">购物指南</div>
+                <ul class="footer-links">
+                    <li><a href="#">购物流程</a></li>
+                    <li><a href="#">支付方式</a></li>
+                    <li><a href="#">配送说明</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="footer-title">售后服务</div>
+                <ul class="footer-links">
+                    <li><a href="#">退换货政策</a></li>
+                    <li><a href="#">售后保障</a></li>
+                    <li><a href="#">常见问题</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="footer-title">关注我们</div>
+                <ul class="footer-links">
+                    <li><a href="#">微信公众号</a></li>
+                    <li><a href="#">官方微博</a></li>
+                    <li><a href="#">抖音账号</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">Copyright 2024 金厨娘 All Rights Reserved</div>
+    </footer>
+
+    <script>
+        function increaseQty() {
+            const input = document.getElementById('quantity');
+            input.value = parseInt(input.value) + 1;
+        }
+
+        function decreaseQty() {
+            const input = document.getElementById('quantity');
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+            }
+        }
+
+        function showTab(tabName) {
+            // 隐藏所有标签内容
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.style.display = 'none');
+            
+            // 显示选中的标签内容
+            document.getElementById(tabName).style.display = 'block';
+            
+            // 更新标签样式
+            const tabItems = document.querySelectorAll('.tab-item');
+            tabItems.forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // 缩略图切换
+        const thumbItems = document.querySelectorAll('.thumb-item');
+        thumbItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                thumbItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                // 切换主图（这里简化处理）
+            });
+        });
+    </script>
+</body>
+</html>
